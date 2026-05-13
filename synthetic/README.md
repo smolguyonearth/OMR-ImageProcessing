@@ -2,6 +2,15 @@
 
 This directory contains standalone scripts for generating synthetic OMR (Optical Mark Recognition) sheets. 
 
+## Sample
+<img width="420" alt="Sample Synthetic Sheet" src="processed_data/synthetic_sample_2.png" />
+
+## Requirements
+Before running the scripts, make sure to install the required dependencies:
+```bash
+pip install -r requirements.txt
+```
+
 ## Structure
 - `generate_data.py`: A standalone script that integrates layout detection of bubble options and synthetic generation of pencil strokes. 
 - `augment_data.py`: A script that applies realistic physical document augmentation (e.g. lighting, shadow, camera perspective, blur) to the generated images in `raw_data`.
