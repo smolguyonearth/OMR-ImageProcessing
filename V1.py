@@ -193,7 +193,6 @@ def omr_pipeline(img_ref_path, img_warped_path, debug=False):
     flat_img, mask = preprocess_omr_gentle(registered_img)
 
     # 2. Extract Main Section
-    gray = cv2.cvtColor(registered_img, cv2.COLOR_BGR2GRAY)
     cnts, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
     if debug:
@@ -211,7 +210,7 @@ def omr_pipeline(img_ref_path, img_warped_path, debug=False):
         x, y, w, h = cv2.boundingRect(approx)
         
         if w > 100 and h > 50:
-            roi_temp = registered_img[y:y+h, x:x+w]
+            roi_temp = flat_img[y:y+h, x:x+w]
             circle_count = count_omr_circles(roi_temp)
             max_circles = max(max_circles, circle_count)
             
@@ -228,7 +227,10 @@ def omr_pipeline(img_ref_path, img_warped_path, debug=False):
         return []
 
     # 3. Format & Map Bubbles
-    roi_gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+    if len(roi.shape) == 3:
+        roi_gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+    else:
+        roi_gray = roi.copy()
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     closed = cv2.morphologyEx(roi_gray, cv2.MORPH_OPEN, kernel)
     thresh = cv2.adaptiveThreshold(closed, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 5)
@@ -275,7 +277,10 @@ def omr_pipeline(img_ref_path, img_warped_path, debug=False):
 
     # 4. Extract Marked Answers
     img_section = roi.copy()
-    gray_section = cv2.cvtColor(img_section, cv2.COLOR_BGR2GRAY)
+    if len(img_section.shape) == 3:
+        gray_section = cv2.cvtColor(img_section, cv2.COLOR_BGR2GRAY)
+    else:
+        gray_section = img_section.copy()
     _, thresh_section = cv2.threshold(gray_section, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
     
     final_cnts = cv2.findContours(thresh_section.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
